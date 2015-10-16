@@ -46,11 +46,11 @@ module powerbi.visuals.samples {
         private slicerSettings: SlicerXSettings;
 
         public bindEvents(options: SlicerXBehaviorOptions, selectionHandler: ISelectionHandler): void {
-            var filterPropertyId = slicerXProps.filterPropertyIdentifier;
-            var slicers = this.slicers = options.slicerItemContainers;
+            let filterPropertyId = slicerXProps.filterPropertyIdentifier;
+            let slicers = this.slicers = options.slicerItemContainers;
             this.slicerItemLabels = options.slicerItemLabels;
             this.slicerItemInputs = options.slicerItemInputs;
-            var slicerClear = options.slicerClear;
+            let slicerClear = options.slicerClear;
             this.dataPoints = options.dataPoints;
             this.interactivityService = options.interactivityService;
             this.slicerSettings = options.slicerSettings;
@@ -72,15 +72,15 @@ module powerbi.visuals.samples {
             //});
 
             slicers.on("click", (d: SlicerXDataPoint, index) => {
-                var settings = this.slicerSettings;
+                let settings = this.slicerSettings;
                 d3.event.preventDefault();
                 if (d3.event.altKey && settings.general.multiselect) {
                     //  selectionHandler.toggleSelectionModeInversion();
-                    var selectedIndexes = jQuery.map(this.dataPoints, function (d, index) { if (d.selected) return index; });
-                    var selIndex = selectedIndexes.length > 0 ? (selectedIndexes[selectedIndexes.length - 1]) : 0;
+                    let selectedIndexes = jQuery.map(this.dataPoints, function (d, index) { if (d.selected) return index; });
+                    let selIndex = selectedIndexes.length > 0 ? (selectedIndexes[selectedIndexes.length - 1]) : 0;
                     selIndex = selIndex > index ? 0 : selIndex;
                     selectionHandler.handleClearSelection();
-                    for (var i = selIndex; i <= index; i++) {
+                    for (let i = selIndex; i <= index; i++) {
                         selectionHandler.handleSelection(this.dataPoints[i], true /* isMultiSelect */);
                     }
                 }
@@ -147,7 +147,7 @@ module powerbi.visuals.samples {
         }
 
         public styleSlicerInputs(slicers: D3.Selection, hasSelection: boolean) {
-            var settings = this.slicerSettings;
+            let settings = this.slicerSettings;
             slicers.each(function (d: SlicerXDataPoint) {
                 d3.select(this).style({ 'background': d.selected ? settings.slicerText.selectedColor : settings.slicerText.unselectedColor });
                 //if (d.isSelectAllDataPoint) {
@@ -161,4 +161,3 @@ module powerbi.visuals.samples {
         }
     }
 }
-
