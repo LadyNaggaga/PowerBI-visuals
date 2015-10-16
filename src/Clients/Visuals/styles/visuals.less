@@ -1892,9 +1892,15 @@ div.ql-toolbar {
             .slicer-img-wrapper {
                 background-repeat: no-repeat;
                 background-position: center;
-                background-size: contain;
                 min-height: 30px;
                 width: 100%;
+                background-size: contain;
+            }
+            .stretchImage {
+                background-size: cover !important;
+            }
+            .bottomImage {
+                order: 1;
             }
         }
     }
@@ -1912,6 +1918,7 @@ div.ql-toolbar {
             overflow: hidden;
             text-overflow: ellipsis;
             position: relative;
+            cursor: pointer;
         }
     }
 

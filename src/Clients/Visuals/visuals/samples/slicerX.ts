@@ -105,6 +105,7 @@ module powerbi.visuals.samples {
     }
 
     export class SlicerX implements IVisual {
+        private svg: D3.Selection;
         private element: JQuery;
         private currentViewport: IViewport;
         private dataView: DataView;
@@ -190,8 +191,6 @@ module powerbi.visuals.samples {
             };
         }
 
-        private svg: D3.Selection;
-
         constructor(options?: SlicerXConstructorOptions) {
             if (options) {
                 if (options.svg) {
@@ -247,15 +246,6 @@ module powerbi.visuals.samples {
             let categoryValuesLen = categories && categories.values ? categories.values.length : 0;
             let slicerDataPoints: SlicerXDataPoint[] = [];
 
-            //slicerDataPoints.push({
-            //    value: localizedSelectAllText,
-            //    mouseOver: false,
-            //    mouseOut: true,
-            //    identity: SelectionId.createWithMeasure(localizedSelectAllText),
-            //    selected: !!isInvertedSelectionMode,
-            //    isSelectAllDataPoint: true
-            //});     
-        
             // Pass over the values to see if there's a positive or negative selection
             let hasSelection: boolean = undefined;
 
@@ -456,10 +446,6 @@ module powerbi.visuals.samples {
 
         private enumerateGeneral(data: SlicerXData): VisualObjectInstance[] {
             let slicerSettings = this.settings;
-            //let outlineColor = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.general && data.slicerSettings.general.outlineColor ?
-            //    data.slicerSettings.general.outlineColor : slicerSettings.general.outlineColor;
-            //let outlineWeight = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.general && data.slicerSettings.general.outlineWeight ?
-            //    data.slicerSettings.general.outlineWeight : slicerSettings.general.outlineWeight;
 
             return [{
                 selector: null,
@@ -599,16 +585,14 @@ module powerbi.visuals.samples {
 
                     let slicerImg = rowSelection.selectAll('.slicer-img-wrapper');
                     slicerImg
-                        .classed('hidden', (d: SlicerXDataPoint) => (d.imageURL) ? false : true)
                         .style('height', settings.images.imageSplit + '%')
                         .style('background-image', (d: SlicerXDataPoint) => {
                             return `url(${d.imageURL})`;
-                        });
+                        })
+                        .classed('hidden', (d: SlicerXDataPoint) => (d.imageURL) ? false : true)
+                        .classed('stretchImage', settings.images.stretchImage)
+                        .classed('bottomImage', settings.images.bottomImage);
 
-                    /*    .style({
-                            'width': settings.images.stretchImage ? '100%' : 'auto',
-                            'height': settings.images.stretchImage ? '100%' : 'auto',
-                        });;*/
                     rowSelection.selectAll('.slicer-text-wrapper').style('width', (d: SlicerXDataPoint) => d.imageURL ? (100 - settings.images.imageSplit) + '%' : '100%');
                     rowSelection.style({
                         'color': settings.slicerText.fontColor,

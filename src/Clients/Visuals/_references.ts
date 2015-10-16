@@ -182,7 +182,6 @@
 
 /// <reference path="visuals/histogram.ts"/>
 
-
 /// <reference path="capabilities/samples/slicerX.capabilities.ts"/>
 /// <reference path="behaviours/samples/slicerXBehaviors.ts"/>
 /// <reference path="visuals/samples/tableView.ts"/>
