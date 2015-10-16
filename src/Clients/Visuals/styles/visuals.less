@@ -1868,64 +1868,65 @@ div.ql-toolbar {
 }
 
 .slicerX {
-    .slicerBody li.slicerItemContainer {
-        height: 100%;
-        box-sizing: border-box;
+
+    .hidden {
+        display: none;
     }
 
-    .slicerBody .cell {
-        box-sizing: border-box;
-        margin: 2px 5px;
-        border-radius: 5px;
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        position: relative;
+    .slicerBody {
+
+        li.slicerItemContainer {
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+            align-items: center;
+
+
+            .slicer-text-wrapper {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+            .slicer-img-wrapper {
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+                min-height: 30px;
+                width: 100%;
+            }
+        }
     }
 
     .slicerItemContainer.selected {
         background: #BDD7EE;
     }
 
-    .row-horizontal {
-        display: inline-block;
+    .slicerBody {
+        .cell {
+            box-sizing: border-box;
+            margin: 2px 5px;
+            border-radius: 5px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+        }
     }
 
     .slicerBody-horizontal {
         white-space: nowrap;
     }
 
+    .row-horizontal {
+        display: inline-block;
+    }
+
     .slicerContainer .slicerText {
         padding: 0px 5px;
     }
-    .slicerHeader{
+    .slicerHeader {
         margin-bottom: 5px;
-    }
-    .slicer-img-wrapper,.slicer-text-wrapper{
-        display: inline-block;
-        box-sizing: border-box;
-        text-align: center;
-    }
-    .slicer-img-wrapper{
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-
-        -ms-flex-align: center;
-        -webkit-align-items: center;
-        -webkit-box-align: center;
-
-        align-items: center;
-    }
-    .slicerBody li.slicerItemContainer{
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-flex-align: center;
-        -ms-flex-align: center;
-        -webkit-align-items: center;
-        align-items: center;
     }
 }

@@ -171,12 +171,12 @@ module powerbi.visuals.samples {
             let totalWidth = this.options.scrollEnabled ? Math.max(0, (this._totalColumns * (columnWidth + 10))) : this.options.viewport.width;
             this.scrollContainer
                 .style({
-                    'height': totalHeight + "px",
+                    'min-height': totalHeight + "px",
                     'width': totalWidth + "px"
                 })
-                .attr('height', totalHeight)
+                .attr('min-height', totalHeight)
                 .attr('width', totalWidth);
-            this.scrollToFrame(true /*loadMoreData*/);
+            this.scrollToFrame(true);
         }
 
         private scrollToFrame(loadMoreData: boolean): void {
@@ -187,16 +187,6 @@ module powerbi.visuals.samples {
             let visibleRows = this.getVisibleRows() || 1;
             let scrollTop: number = options.baseContainer.node().scrollTop;
             let scrollPosition = (scrollTop === 0) ? 0 : Math.floor(scrollTop / rowHeight);
-            /*
-            let translateY = scrollPosition * rowHeight;
-
-                    visibleGroupContainer
-                        .attr('transform', d => SVGUtil.translate(0, translateY))
-                        .style({
-                            //order matters for proper overriding
-                            'transform': d => SVGUtil.translateWithPixels(0, translateY),
-                            '-webkit-transform': d => SVGUtil.translateWithPixels(0, translateY)
-                        });*/
 
             let position0 = Math.max(0, Math.min(scrollPosition, totalRows - visibleRows + 1)) * this._totalColumns,
                 position1 = (position0 + visibleRows) * this._totalColumns;
@@ -204,19 +194,15 @@ module powerbi.visuals.samples {
             let groupedData: any[] = [];
             for (let i = 0; i < this._data.length; i += this._totalColumns) {
                 groupedData.push(this._data.slice(i, i + this._totalColumns));
-            }
+            };
 
-            //let rowSelection = visibleGroupContainer.selectAll(".cell")
-            //    .data(this._data.slice(position0, Math.min(position1, totalRows)), this.getDatumIndex);
             visibleGroupContainer.selectAll(".row").remove();
             let cellSelection = visibleGroupContainer.selectAll(".row")
                 .data(groupedData)
                 .enter().append("div")
                 .classed('row', true)
                 .selectAll(".cell")
-                .data(function (d) { return d; });
-            //.enter().append("div").classed('cell', true)
-            //.call(d => options.enter(d));
+                .data(d => d);
 
             cellSelection
                 .enter()
@@ -233,7 +219,7 @@ module powerbi.visuals.samples {
                 'width': (options.columnWidth > 0) ? options.columnWidth + 'px' :
                     (options.viewport.width / this._totalColumns - TableView.marginLeft - TableView.marginRight - TableView.paddingLeft - TableView.paddingRight) + 'px'
             });
-            cellUpdateSelection.style({ 'height': (options.rowHeight > 0) ? options.rowHeight + 'px' : 'auto' });
+            cellUpdateSelection.style({ 'min-height': (options.rowHeight > 0) ? options.rowHeight + 'px' : 'auto' });
             cellSelection
                 .exit()
                 .call(d => options.exit(d))

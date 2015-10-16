@@ -27,8 +27,8 @@
 /// <reference path="../../_references.ts"/>
 
 module powerbi.visuals.samples {
-    //import SelectionManager = utility.SelectionManager;
     import ClassAndSelector = jsCommon.CssConstants.ClassAndSelector;
+    import createClassAndSelector = jsCommon.CssConstants.createClassAndSelector;
 
     import PixelConverter = jsCommon.PixelConverter;
 
@@ -59,7 +59,6 @@ module powerbi.visuals.samples {
         general: {
             horizontal: boolean;
             columns: number;
-            //  sortorder: string;
             multiselect: boolean;
             showdisabled: string;
         };
@@ -117,46 +116,20 @@ module powerbi.visuals.samples {
         private interactivityService: IInteractivityService;
         private behavior: SlicerXWebBehavior;
         private hostServices: IVisualHostServices;
-        //private static clearTextKey = 'Slicer_Clear';
-        //private static selectAllTextKey = 'Slicer_SelectAll';
         private waitingForData: boolean;
         private textProperties: TextProperties = {
             'fontFamily': 'wf_segoe-ui_normal, helvetica, arial, sans-serif',
             'fontSize': '14px',
         };
 
-        private static Container: ClassAndSelector = {
-            class: 'slicerX',
-            selector: '.slicerX'
-        };
-        private static Header: ClassAndSelector = {
-            class: 'slicerHeader',
-            selector: '.slicerHeader'
-        };
-        private static HeaderText: ClassAndSelector = {
-            class: 'headerText',
-            selector: '.headerText'
-        };
-        private static Body: ClassAndSelector = {
-            class: 'slicerBody',
-            selector: '.slicerBody'
-        };
-        private static ItemContainer: ClassAndSelector = {
-            class: 'slicerItemContainer',
-            selector: '.slicerItemContainer'
-        };
-        private static LabelText: ClassAndSelector = {
-            class: 'slicerText',
-            selector: '.slicerText'
-        };
-        private static Input: ClassAndSelector = {
-            class: 'slicerCheckbox',
-            selector: '.slicerCheckbox'
-        };
-        private static Clear: ClassAndSelector = {
-            class: 'clear',
-            selector: '.clear'
-        };
+        private static ItemContainer: ClassAndSelector = createClassAndSelector('slicerItemContainer');
+        private static HeaderText: ClassAndSelector = createClassAndSelector('headerText');
+        private static Container: ClassAndSelector  = createClassAndSelector('slicerX');
+        private static LabelText: ClassAndSelector  = createClassAndSelector('slicerText');
+        private static Header: ClassAndSelector = createClassAndSelector('slicerHeader');
+        private static Input: ClassAndSelector  = createClassAndSelector('slicerCheckbox');
+        private static Clear: ClassAndSelector  = createClassAndSelector('clear');
+        private static Body: ClassAndSelector   = createClassAndSelector('slicerBody');
 
         public static DefaultStyleProperties(): SlicerXSettings {
             return {
@@ -190,7 +163,7 @@ module powerbi.visuals.samples {
                 },
                 slicerText: {
                     textSize: 10,
-                    height: 0,
+                    height: 30,
                     width: 0,
                     fontColor: '#666666',
                     hoverColor: '#212121',
@@ -281,8 +254,8 @@ module powerbi.visuals.samples {
             //    identity: SelectionId.createWithMeasure(localizedSelectAllText),
             //    selected: !!isInvertedSelectionMode,
             //    isSelectAllDataPoint: true
-            //});                    
-                                     
+            //});     
+        
             // Pass over the values to see if there's a positive or negative selection
             let hasSelection: boolean = undefined;
 
@@ -342,7 +315,6 @@ module powerbi.visuals.samples {
             if (objects) {
                 defaultSettings.general.horizontal = DataViewObjects.getValue<boolean>(objects, slicerXProps.general.horizontal, defaultSettings.general.horizontal);
                 defaultSettings.general.columns = DataViewObjects.getValue<number>(objects, slicerXProps.general.columns, defaultSettings.general.columns);
-                //   defaultSettings.general.sortorder = DataViewObjects.getValue<string>(objects, slicerXProps.general.sortorder, defaultSettings.general.sortorder);
                 defaultSettings.general.multiselect = DataViewObjects.getValue<boolean>(objects, slicerXProps.general.multiselect, defaultSettings.general.multiselect);
                 defaultSettings.general.showdisabled = DataViewObjects.getValue<string>(objects, slicerXProps.general.showdisabled, defaultSettings.general.showdisabled);
 
@@ -444,10 +416,6 @@ module powerbi.visuals.samples {
 
         private enumerateHeader(data: SlicerXData): VisualObjectInstance[] {
             let slicerSettings = this.settings;
-            //let fontColor = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.header && data.slicerSettings.header.fontColor ?
-            //   data.slicerSettings.header.fontColor : slicerSettings.header.fontColor;
-            // let background = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.header && data.slicerSettings.header.background ?
-            //    data.slicerSettings.header.background : slicerSettings.header.background;
             return [{
                 selector: null,
                 objectName: 'header',
@@ -467,10 +435,6 @@ module powerbi.visuals.samples {
 
         private enumerateRows(data: SlicerXData): VisualObjectInstance[] {
             let slicerSettings = this.settings;
-            //let fontColor = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.slicerText && data.slicerSettings.slicerText.color ?
-            //    data.slicerSettings.slicerText.color : slicerSettings.slicerText.color;
-            //let background = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.slicerText && data.slicerSettings.slicerText.background ?
-            //    data.slicerSettings.slicerText.background : slicerSettings.slicerText.background;
             return [{
                 selector: null,
                 objectName: 'rows',
@@ -512,11 +476,6 @@ module powerbi.visuals.samples {
 
         private enumerateImages(data: SlicerXData): VisualObjectInstance[] {
             let slicerSettings = this.settings;
-            //let outlineColor = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.general && data.slicerSettings.general.outlineColor ?
-            //    data.slicerSettings.general.outlineColor : slicerSettings.general.outlineColor;
-            //let outlineWeight = data !== undefined && data.slicerSettings !== undefined && data.slicerSettings.general && data.slicerSettings.general.outlineWeight ?
-            //    data.slicerSettings.general.outlineWeight : slicerSettings.general.outlineWeight;
-
             return [{
                 selector: null,
                 objectName: 'images',
@@ -541,7 +500,6 @@ module powerbi.visuals.samples {
             data.slicerSettings.header.outlineWeight = data.slicerSettings.header.outlineWeight < 0 ? 0 : data.slicerSettings.header.outlineWeight;
             this.slicerData = data;
             this.settings = this.slicerData.slicerSettings;
-            //  this.tableView.empty();
             this.tableView
                 .viewport(this.getSlicerBodyViewport(this.currentViewport))
                 .rowHeight(this.settings.slicerText.height)
@@ -558,15 +516,21 @@ module powerbi.visuals.samples {
         private initContainer() {
             let settings = this.settings;
             let slicerBodyViewport = this.getSlicerBodyViewport(this.currentViewport);
-            let slicerContainer: D3.Selection = d3.select(this.element.get(0)).classed(SlicerX.Container.class, true);
+            let slicerContainer: D3.Selection = d3.select(this.element.get(0)).
+                                                classed(SlicerX.Container.class, true);
 
-            this.slicerHeader = slicerContainer.append('div').classed(SlicerX.Header.class, true);
+            this.slicerHeader = slicerContainer
+                .append('div')
+                .classed(SlicerX.Header.class, true);
 
-            this.slicerHeader.append('span')
+            this.slicerHeader
+                .append('span')
                 .classed(SlicerX.Clear.class, true)
                 .attr('title', 'Clear');
 
-            this.slicerHeader.append('div').classed(SlicerX.HeaderText.class, true)
+            this.slicerHeader
+                .append('div')
+                .classed(SlicerX.HeaderText.class, true)
                 .style({
                     'margin-left': PixelConverter.toString(settings.headerText.marginLeft),
                     'margin-top': PixelConverter.toString(settings.headerText.marginTop),
@@ -576,35 +540,24 @@ module powerbi.visuals.samples {
                     'font-size': PixelConverter.fromPoint(settings.header.textSize),
                 });
 
-            this.slicerBody = slicerContainer.append('div').classed(SlicerX.Body.class, true).classed('slicerBody-horizontal', settings.general.horizontal)
+            this.slicerBody = slicerContainer
+                .append('div').classed(SlicerX.Body.class, true)
+                .classed('slicerBody-horizontal', settings.general.horizontal)
                 .style({
                     'height': PixelConverter.toString(slicerBodyViewport.height),
                     'width': PixelConverter.toString(slicerBodyViewport.width),
                 });
-            //this.slicerBody.append('div').classed('slicer-wrapper', true)
-            //    .style({
-            //        'width': 'auto',
-            //        'white-space': 'nowrap'
-            //    });
+
             let rowEnter = (rowSelection: D3.Selection) => {
                 let settings = this.settings;
-//                let labelWidth = PixelConverter.toString(this.currentViewport.width - (settings.slicerItemContainer.marginLeft + settings.slicerText.marginLeft + settings.header.outlineWeight * 2));
-                //  rowSelection.classed('row-horizontal', settings.general.horizontal);
                 let listItemElement = rowSelection.append('li')
                     .classed(SlicerX.ItemContainer.class, true)
                     .style({
                         'margin-left': PixelConverter.toString(settings.slicerItemContainer.marginLeft),
                     });
 
-                //let labelElement = listItemElement.append('label')
-                //    .classed(SlicerX.Input.class, true);
-
-                //labelElement.append('input')
-                //    .attr('type', 'checkbox');
-                listItemElement.append('div').style('display', 'none')
-                    .classed('slicer-img-wrapper', true)
-                    .append('img')
-                    .classed('slicer-img', true);
+                listItemElement.append('div')
+                    .classed('slicer-img-wrapper', true);
 
                 listItemElement.append('div')
                     .classed('slicer-text-wrapper', true)
@@ -636,20 +589,26 @@ module powerbi.visuals.samples {
                             });
                     }
                     else {
-                        this.slicerHeader.style('display', 'none');
+                        this.slicerHeader.classed('hidden', true);
                     }
 
                     let slicerText = rowSelection.selectAll(SlicerX.LabelText.selector);
 
                     let formatString = data.formatString;
                     slicerText.text((d: SlicerXDataPoint) => valueFormatter.format(d.value, formatString));
-                    let slicerImg = rowSelection.selectAll('.slicer-img-wrapper').style('display', (d: SlicerXDataPoint) => d.imageURL ? 'inline-block' : 'none')
-                        .style('width', settings.images.imageSplit + '%');
-                    slicerImg.selectAll('img').attr('src', (d: SlicerXDataPoint) => d.imageURL)
-                        .style({
+
+                    let slicerImg = rowSelection.selectAll('.slicer-img-wrapper');
+                    slicerImg
+                        .classed('hidden', (d: SlicerXDataPoint) => (d.imageURL) ? false : true)
+                        .style('height', settings.images.imageSplit + '%')
+                        .style('background-image', (d: SlicerXDataPoint) => {
+                            return `url(${d.imageURL})`;
+                        });
+
+                    /*    .style({
                             'width': settings.images.stretchImage ? '100%' : 'auto',
                             'height': settings.images.stretchImage ? '100%' : 'auto',
-                        });;
+                        });;*/
                     rowSelection.selectAll('.slicer-text-wrapper').style('width', (d: SlicerXDataPoint) => d.imageURL ? (100 - settings.images.imageSplit) + '%' : '100%');
                     rowSelection.style({
                         'color': settings.slicerText.fontColor,
@@ -770,63 +729,7 @@ module powerbi.visuals.samples {
                     return outlineWeight + 'px';
                 default:
                     return outlineElement.replace("1", outlineWeight.toString());
-
             }
         }
-
-        //private static getMetadataFill(dataView: DataView, field: string, property: string, defaultValue: string): Fill {
-        //    if (dataView) {
-        //        let metadata = dataView.metadata.objects;
-        //        if (metadata) {
-        //            let val = metadata[field];
-        //            if (val && val.hasOwnProperty(property)) {
-        //                let fill = <Fill>val[property];
-        //                if (fill)
-        //                    return fill;
-        //            }
-        //        }
-        //    }
-        //    return { solid: { color: defaultValue } };
-        //}
-
-        //private static getMetadataText(dataView: DataView, field: string, property: string, defaultValue: string = ''): string {
-        //    if (dataView) {
-        //        let metadata = dataView.metadata.objects;
-        //        if (metadata) {
-        //            let val = metadata[field];
-        //            if (val && val.hasOwnProperty(property) && val[property] !== '') {
-        //                let text = <string>val[property];
-        //                if (text)
-        //                    return text;
-        //            }
-        //        }
-        //    }
-        //    return defaultValue;
-        //}
-
-        //private static getMetadataBool(dataView: DataView, field: string, property: string, defaultValue: boolean = true): boolean {
-        //    if (dataView) {
-        //        let metadata = dataView.metadata.objects;
-        //        if (metadata) {
-        //            let val = metadata[field];
-        //            if (val && val.hasOwnProperty(property))
-        //                return <boolean>val[property];
-        //        }
-        //    }
-        //    return defaultValue;
-        //}
-
-        //private static getMetadataNumber(dataView: DataView, field: string, property: string, defaultValue: number = -Infinity): number {
-        //    if (dataView) {
-        //        let metadata = dataView.metadata.objects;
-        //        if (metadata) {
-        //            let val = metadata[field];
-        //            if (val && val.hasOwnProperty(property) && val[property] !== '')
-        //                return <number>val[property];
-        //        }
-        //    }
-        //    return defaultValue;
-        //}
-
     }
 }
