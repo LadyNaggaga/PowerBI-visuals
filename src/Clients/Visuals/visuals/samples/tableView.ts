@@ -155,8 +155,9 @@ module powerbi.visuals.samples {
         }
 
         public render(): void {
-            if (this.renderTimeoutId)
+            if (this.renderTimeoutId) {
                 window.clearTimeout(this.renderTimeoutId);
+            }
 
             this.renderTimeoutId = window.setTimeout(() => {
                 this.getRowHeight().then((rowHeight: number, columnWidth: number) => {
@@ -199,7 +200,8 @@ module powerbi.visuals.samples {
             visibleGroupContainer.selectAll(".row").remove();
             let cellSelection = visibleGroupContainer.selectAll(".row")
                 .data(groupedData)
-                .enter().append("div")
+                .enter()
+                .append("div")
                 .classed('row', true)
                 .selectAll(".cell")
                 .data(d => d);
@@ -242,8 +244,9 @@ module powerbi.visuals.samples {
             let rowHeight = this.options.rowHeight;
             let viewportHeight = this.options.viewport.height;
 
-            if (!rowHeight || rowHeight < 1)
+            if (!rowHeight || rowHeight < 1) {
                 return minimumVisibleRows;
+            }
 
             if (this.options.scrollEnabled)
                 return Math.min(Math.ceil(viewportHeight / rowHeight) + 1, this._totalRows) || minimumVisibleRows;

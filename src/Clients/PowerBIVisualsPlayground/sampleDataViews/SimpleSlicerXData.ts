@@ -43,12 +43,7 @@ module powerbi.visuals.sampleDataViews {
             "http://auto-koller.com/images/logos/Toyota_Transparent.gif",        
             "http://a.dlron.us/assets/logos/transparent/Ferrari.png"
         ];
-        /*
-        private sampleMin: number = 30000;
-        private sampleMax: number = 1000000;
 
-        private sampleSingleData: number = 55943.67;
-*/
         public getDataViews(): DataView[] {
 
             var fieldExpr = powerbi.data.SQExprBuilder.fieldExpr({ column: { schema: 's', entity: "table1", name: "country" } });
@@ -116,15 +111,7 @@ module powerbi.visuals.sampleDataViews {
             }];
         }
 
-        
         public randomize(): void {
-            /*
-            this.sampleData = this.sampleData.map((item) => {
-                return item.map(() => this.getRandomValue(this.sampleMin, this.sampleMax));
-            });
-
-            this.sampleSingleData = this.getRandomValue(this.sampleMin, this.sampleMax);*/
-        }
-        
+        }        
     }
 }

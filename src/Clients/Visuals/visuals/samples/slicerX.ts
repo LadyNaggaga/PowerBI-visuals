@@ -34,8 +34,6 @@ module powerbi.visuals.samples {
 
     export interface SlicerXConstructorOptions {
         behavior?: SlicerXWebBehavior;
-        svg?: D3.Selection;
-        margin?: IMargin;
     }
 
     export interface SlicerXData {
@@ -105,7 +103,6 @@ module powerbi.visuals.samples {
     }
 
     export class SlicerX implements IVisual {
-        private svg: D3.Selection;
         private element: JQuery;
         private currentViewport: IViewport;
         private dataView: DataView;
@@ -193,9 +190,6 @@ module powerbi.visuals.samples {
 
         constructor(options?: SlicerXConstructorOptions) {
             if (options) {
-                if (options.svg) {
-                    this.svg = options.svg;
-                }
                 if (options.behavior) {
                     this.behavior = options.behavior;
                 }
@@ -209,7 +203,9 @@ module powerbi.visuals.samples {
             }
 
             let dataViewCategorical = dataView.categorical;
-            if (dataViewCategorical == null || dataViewCategorical.categories == null || dataViewCategorical.categories.length === 0)
+            if (dataViewCategorical == null || 
+                dataViewCategorical.categories == null ||
+                dataViewCategorical.categories.length === 0)
                 return;
 
             let isInvertedSelectionMode = undefined;
@@ -220,8 +216,9 @@ module powerbi.visuals.samples {
             let numberOfScopeIds: number;
             if (objects && objects.general && objects.general.filter) {
                 let identityFields = categories.identityFields;
-                if (!identityFields)
+                if (!identityFields) {
                     return;
+                }
                 let filter = <powerbi.data.SemanticFilter>objects.general.filter;
                 let scopeIds = powerbi.data.SQExprConverter.asScopeIdsContainer(filter, identityFields);
                 if (scopeIds) {
@@ -266,14 +263,16 @@ module powerbi.visuals.samples {
                     // If the visual is in InvertedSelectionMode, all the categories should be selected by default unless they are not selected
                     // If the visual is not in InvertedSelectionMode, we set all the categories to be false except the selected category                         
                     if (isInvertedSelectionMode) {
-                        if (categories.objects == null)
+                        if (categories.objects == null) {
                             categoryIsSelected = undefined;
+                        }
 
                         if (categoryIsSelected != null) {
                             categoryIsSelected = hasSelection;
                         }
-                        else if (categoryIsSelected == null)
+                        else if (categoryIsSelected == null) {
                             categoryIsSelected = !hasSelection;
+                        }
                     }
                     else {
                         if (categoryIsSelected == null) {
@@ -282,8 +281,9 @@ module powerbi.visuals.samples {
                     }
                 }
 
-                if (categoryIsSelected)
+                if (categoryIsSelected) {
                     numberOfCategoriesSelectedInData++;
+                }
 
                 let dataPoint: SlicerXDataPoint = {
                     value: categories.values[idx],
@@ -362,12 +362,24 @@ module powerbi.visuals.samples {
         }
 
         public onDataChanged(options: VisualDataChangedOptions): void {
-            let dataViews = options.dataViews;
-            debug.assertValue(dataViews, 'dataViews');
+            if (!options.dataViews || !options.dataViews[0]) {
+                return;
+            }
+
+            let dataView,
+                dataViews = options.dataViews;
 
             let existingDataView = this.dataView;
             if (dataViews && dataViews.length > 0) {
-                this.dataView = dataViews[0];
+                dataView = this.dataView = dataViews[0];
+            }
+
+            if (!dataView ||
+                !dataView.categorical ||
+                !dataView.categorical.values ||
+                !dataView.categorical.values[0] ||
+                !dataView.categorical.values[0].values) {
+                return;
             }
 
             let resetScrollbarPosition = false;
@@ -388,8 +400,9 @@ module powerbi.visuals.samples {
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] {
             let data = this.slicerData;
-            if (!data)
+            if (!data){
                 return;
+            }
 
             let objectName = options.objectName;
             switch (objectName) {
@@ -418,7 +431,6 @@ module powerbi.visuals.samples {
                     outline: slicerSettings.header.outline,
                     outlineColor: slicerSettings.header.outlineColor,
                     outlineWeight: slicerSettings.header.outlineWeight
-
                 }
             }];
         }
@@ -453,7 +465,7 @@ module powerbi.visuals.samples {
                 properties: {
                     horizontal: slicerSettings.general.horizontal,
                     columns: slicerSettings.general.columns,
-                    //   sortorder: slicerSettings.general.sortorder,
+                    //sortorder: slicerSettings.general.sortorder,
                     multiselect: slicerSettings.general.multiselect,
                     showdisabled: slicerSettings.general.showdisabled,
                 }
@@ -550,17 +562,15 @@ module powerbi.visuals.samples {
                     .append('span')
                     .classed(SlicerX.LabelText.class, true)
                     .style({
-                        //  'width': settings.gener7al.horizontal === true ? labelWidth : 'auto',
+                        // 'width': settings.general.horizontal === true ? labelWidth : 'auto',
                         'font-size': PixelConverter.fromPoint(settings.slicerText.textSize),
                     });
-
             };
 
             let rowUpdate = (rowSelection: D3.Selection) => {
                 let settings = this.settings;
                 let data = this.slicerData;
                 if (data && settings) {
-
                     if (settings.header.show) {
                         this.slicerHeader.style('display', 'block');
                         this.slicerHeader.select(SlicerX.HeaderText.selector)
@@ -585,7 +595,7 @@ module powerbi.visuals.samples {
 
                     let slicerImg = rowSelection.selectAll('.slicer-img-wrapper');
                     slicerImg
-                        .style('height', settings.images.imageSplit + '%')
+                        .style('height', `${settings.images.imageSplit}%`)
                         .style('background-image', (d: SlicerXDataPoint) => {
                             return `url(${d.imageURL})`;
                         })
@@ -593,7 +603,12 @@ module powerbi.visuals.samples {
                         .classed('stretchImage', settings.images.stretchImage)
                         .classed('bottomImage', settings.images.bottomImage);
 
-                    rowSelection.selectAll('.slicer-text-wrapper').style('width', (d: SlicerXDataPoint) => d.imageURL ? (100 - settings.images.imageSplit) + '%' : '100%');
+                    rowSelection.selectAll('.slicer-text-wrapper')
+                        .style('width', (d: SlicerXDataPoint) => {
+                            let textSplit = d.imageURL ? (100 - settings.images.imageSplit) : 100;
+                            return `${textSplit}%`;
+                        });
+
                     rowSelection.style({
                         'color': settings.slicerText.fontColor,
                         'border-style': this.getBorderStyle(settings.slicerText.outline),
@@ -619,8 +634,12 @@ module powerbi.visuals.samples {
                             slicerSettings: data.slicerSettings,
                         };
 
-                        this.interactivityService.bind(data.slicerDataPoints, this.behavior, behaviorOptions, { overrideSelectionFromData: true, hasSelectionOverride: data.hasSelectionOverride });
-                        this.behavior.styleSlicerInputs(rowSelection.select(SlicerX.ItemContainer.selector), this.interactivityService.hasSelection());
+                        this.interactivityService.bind(data.slicerDataPoints, this.behavior, behaviorOptions, { 
+                            overrideSelectionFromData: true,
+                            hasSelectionOverride: data.hasSelectionOverride
+                        });
+                        this.behavior.styleSlicerInputs(rowSelection.select(SlicerX.ItemContainer.selector),
+                                                        this.interactivityService.hasSelection());
                     }
                     else {
                         this.behavior.styleSlicerInputs(rowSelection.select(SlicerX.ItemContainer.selector), false);
