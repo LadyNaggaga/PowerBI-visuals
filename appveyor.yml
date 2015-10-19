@@ -31,8 +31,8 @@ os: Windows Server 2012
 platform: Any CPU
 
 # build cache to preserve files/folders between builds
-cache:
-  - node_modules # local npm modules
+#cache:
+#  - node_modules # local npm modules
 
 # scripts that run after cloning repository
 install:
