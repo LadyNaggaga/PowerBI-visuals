@@ -198,7 +198,10 @@ module powerbi.visuals.samples {
         }
 
         public static converter(dataView: DataView, localizedSelectAllText: string, interactivityService: IInteractivityService): SlicerXData {
-            if (!dataView) {
+            if (!dataView ||
+                !dataView.categorical ||
+                !dataView.categorical.categories ||
+                (dataView.categorical.categories.length < 1)) {
                 return;
             }
             let converter = new SlicerXConverter(dataView, interactivityService);
