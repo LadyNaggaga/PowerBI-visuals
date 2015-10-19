@@ -1870,30 +1870,59 @@ div.ql-toolbar {
 .slicerX {
     font-family: @regularFontFamily;
     .hidden {
-        display: none;
+        display: none !important;
     }
 
     .slicerBody {
+
+        .cell {
+            box-sizing: border-box;
+            margin: 2px 5px;
+            border-radius: 5px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            cursor: pointer;
+        }
 
         li.slicerItemContainer {
 
             display: flex;
             flex-direction: column;
-
+            flex-wrap: nowrap;
             justify-content: center;
-            align-items: center;
+            align-content: center;
+            align-items: stretch;
 
+            height: 100%;
+            padding-top: 5px;
+            padding-bottom: 5px;
+  
+            .slicer-text-wrapper, .slicer-img-wrapper {
+                order: 0;
+                align-self: auto;
+                
+                flex-grow: 1;
+                flex-shrink: 1;
+                flex-basis: auto;
+            }
 
             .slicer-text-wrapper {
-                width: 100%;
                 box-sizing: border-box;
                 text-align: center;
+
+                display: flex;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                justify-content: center;
+                align-content: center;
+                align-items: stretch;
             }
+
             .slicer-img-wrapper {
                 background-repeat: no-repeat;
                 background-position: center;
-                min-height: 30px;
-                width: 100%;
                 background-size: contain;
             }
             .stretchImage {
@@ -1907,19 +1936,6 @@ div.ql-toolbar {
 
     .slicerItemContainer.selected {
         background: #BDD7EE;
-    }
-
-    .slicerBody {
-        .cell {
-            box-sizing: border-box;
-            margin: 2px 5px;
-            border-radius: 5px;
-            display: inline-block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            position: relative;
-            cursor: pointer;
-        }
     }
 
     .slicerBody-horizontal {

@@ -186,5 +186,6 @@
 /// <reference path="behaviours/samples/slicerXBehaviors.ts"/>
 /// <reference path="visuals/samples/tableView.ts"/>
 /// <reference path="visuals/samples/slicerX.ts"/>
+/// <reference path="visuals/samples/slicerXConverter.ts"/>
 
 /// <reference path="plugins.ts"/>

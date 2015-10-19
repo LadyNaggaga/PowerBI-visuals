@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Power BI Visualizations
  *
  *  Copyright (c) Microsoft Corporation
@@ -46,11 +46,12 @@ module powerbi.visuals.samples {
 
     export interface SlicerXDataPoint extends SelectableDataPoint {
         category?: string;
-        value: string;
-        mouseOver: boolean;
-        mouseOut: boolean;
+        value?: number;
+        mouseOver?: boolean;
+        mouseOut?: boolean;
         isSelectAllDataPoint?: boolean;
         imageURL?: string;
+        selectable?: boolean;
     }
 
     export interface SlicerXSettings {
@@ -122,12 +123,12 @@ module powerbi.visuals.samples {
 
         private static ItemContainer: ClassAndSelector = createClassAndSelector('slicerItemContainer');
         private static HeaderText: ClassAndSelector = createClassAndSelector('headerText');
-        private static Container: ClassAndSelector  = createClassAndSelector('slicerX');
-        private static LabelText: ClassAndSelector  = createClassAndSelector('slicerText');
+        private static Container: ClassAndSelector = createClassAndSelector('slicerX');
+        private static LabelText: ClassAndSelector = createClassAndSelector('slicerText');
         private static Header: ClassAndSelector = createClassAndSelector('slicerHeader');
-        private static Input: ClassAndSelector  = createClassAndSelector('slicerCheckbox');
-        private static Clear: ClassAndSelector  = createClassAndSelector('clear');
-        private static Body: ClassAndSelector   = createClassAndSelector('slicerBody');
+        private static Input: ClassAndSelector = createClassAndSelector('slicerCheckbox');
+        private static Clear: ClassAndSelector = createClassAndSelector('clear');
+        private static Body: ClassAndSelector = createClassAndSelector('slicerBody');
 
         public static DefaultStyleProperties(): SlicerXSettings {
             return {
@@ -150,7 +151,7 @@ module powerbi.visuals.samples {
                     outline: 'BottomOnly',
                     fontColor: '#000000',
                     background: '#ffffff',
-                    textSize: 10,
+                    textSize: 20,
                     outlineColor: '#000000',
                     outlineWeight: 1,
                     title: '',
@@ -160,8 +161,8 @@ module powerbi.visuals.samples {
                     marginTop: 0
                 },
                 slicerText: {
-                    textSize: 10,
-                    height: 30,
+                    textSize: 15,
+                    height: 100,
                     width: 0,
                     fontColor: '#666666',
                     hoverColor: '#212121',
@@ -181,7 +182,7 @@ module powerbi.visuals.samples {
                     marginLeft: 0,
                 },
                 images: {
-                    imageSplit: 50,
+                    imageSplit: 80,
                     stretchImage: false,
                     bottomImage: false
                 }
@@ -197,111 +198,14 @@ module powerbi.visuals.samples {
         }
 
         public static converter(dataView: DataView, localizedSelectAllText: string, interactivityService: IInteractivityService): SlicerXData {
-            let slicerData: SlicerXData;
             if (!dataView) {
                 return;
             }
-
-            let dataViewCategorical = dataView.categorical;
-            if (dataViewCategorical == null || 
-                dataViewCategorical.categories == null ||
-                dataViewCategorical.categories.length === 0)
-                return;
-
-            let isInvertedSelectionMode = undefined;
-            let objects = dataView.metadata ? <any>dataView.metadata.objects : undefined;
-            let categories = dataViewCategorical.categories[0];
-            let categoryValues = dataViewCategorical.values[0];
-
-            let numberOfScopeIds: number;
-            if (objects && objects.general && objects.general.filter) {
-                let identityFields = categories.identityFields;
-                if (!identityFields) {
-                    return;
-                }
-                let filter = <powerbi.data.SemanticFilter>objects.general.filter;
-                let scopeIds = powerbi.data.SQExprConverter.asScopeIdsContainer(filter, identityFields);
-                if (scopeIds) {
-                    isInvertedSelectionMode = scopeIds.isNot;
-                    numberOfScopeIds = scopeIds.scopeIds ? scopeIds.scopeIds.length : 0;
-                }
-                else {
-                    isInvertedSelectionMode = false;
-                }
-            }
-
-            if (interactivityService) {
-                if (isInvertedSelectionMode === undefined) {
-                    // The selection state is read from the Interactivity service in case of SelectAll or Clear when query doesn't update the visual
-                    isInvertedSelectionMode = interactivityService.isSelectionModeInverted();
-                }
-                else {
-                    interactivityService.setSelectionModeInverted(isInvertedSelectionMode);
-                }
-            }
-
-            let categoryValuesLen = categories && categories.values ? categories.values.length : 0;
-            let slicerDataPoints: SlicerXDataPoint[] = [];
-
-            // Pass over the values to see if there's a positive or negative selection
-            let hasSelection: boolean = undefined;
-
-            for (let idx = 0; idx < categoryValuesLen; idx++) {
-                let selected = isCategoryColumnSelected(slicerXProps.selectedPropertyIdentifier, categories, idx);
-                if (selected != null) {
-                    hasSelection = selected;
-                    break;
-                }
-            }
-
-            let numberOfCategoriesSelectedInData = 0;
-            for (let idx = 0; idx < categoryValuesLen; idx++) {
-                let categoryIdentity = categories.identity ? categories.identity[idx] : null;
-                let categoryIsSelected = isCategoryColumnSelected(slicerXProps.selectedPropertyIdentifier, categories, idx);
-
-                if (hasSelection != null) {
-                    // If the visual is in InvertedSelectionMode, all the categories should be selected by default unless they are not selected
-                    // If the visual is not in InvertedSelectionMode, we set all the categories to be false except the selected category                         
-                    if (isInvertedSelectionMode) {
-                        if (categories.objects == null) {
-                            categoryIsSelected = undefined;
-                        }
-
-                        if (categoryIsSelected != null) {
-                            categoryIsSelected = hasSelection;
-                        }
-                        else if (categoryIsSelected == null) {
-                            categoryIsSelected = !hasSelection;
-                        }
-                    }
-                    else {
-                        if (categoryIsSelected == null) {
-                            categoryIsSelected = !hasSelection;
-                        }
-                    }
-                }
-
-                if (categoryIsSelected) {
-                    numberOfCategoriesSelectedInData++;
-                }
-
-                let dataPoint: SlicerXDataPoint = {
-                    value: categories.values[idx],
-                    mouseOver: false,
-                    mouseOut: true,
-                    identity: SelectionId.createWithId(categoryIdentity),
-                    selected: categoryIsSelected
-                };
-                /*
-                if (categoryValues && categoryValues[idx] && categoryValues[idx].source) {
-                    dataPoint.imageURL = converterHelper.getFormattedLegendLabel(categoryValues[idx].source, dataViewCategorical.values, slicerXProps.formatString);
-                }*/
-                dataPoint.imageURL = categoryValues.values[idx];
-                slicerDataPoints.push(dataPoint);
-            }
-
+            let converter = new SlicerXConverter(dataView, interactivityService);
+            converter.convert();
+            let slicerData: SlicerXData;
             let defaultSettings = this.DefaultStyleProperties();
-            objects = dataView.metadata.objects;
+            let objects = dataView.metadata.objects;
             if (objects) {
                 defaultSettings.general.horizontal = DataViewObjects.getValue<boolean>(objects, slicerXProps.general.horizontal, defaultSettings.general.horizontal);
                 defaultSettings.general.columns = DataViewObjects.getValue<number>(objects, slicerXProps.general.columns, defaultSettings.general.columns);
@@ -333,18 +237,17 @@ module powerbi.visuals.samples {
                 defaultSettings.images.stretchImage = DataViewObjects.getValue<boolean>(objects, slicerXProps.images.stretchImage, defaultSettings.images.stretchImage);
                 defaultSettings.images.bottomImage = DataViewObjects.getValue<boolean>(objects, slicerXProps.images.bottomImage, defaultSettings.images.bottomImage);
             }
+            let categories = dataView.categorical.categories[0];
 
             slicerData = {
                 categorySourceName: categories.source.displayName,
                 formatString: valueFormatter.getFormatString(categories.source, slicerXProps.formatString),
                 slicerSettings: defaultSettings,
-                slicerDataPoints: slicerDataPoints,
+                slicerDataPoints: converter.dataPoints,
             };
 
             // Override hasSelection if a objects contained more scopeIds than selections we found in the data
-            if (numberOfScopeIds != null && numberOfScopeIds > numberOfCategoriesSelectedInData) {
-                slicerData.hasSelectionOverride = true;
-            }
+            slicerData.hasSelectionOverride = converter.hasSelectionOverride;
 
             return slicerData;
         }
@@ -393,6 +296,19 @@ module powerbi.visuals.samples {
             this.waitingForData = false;
         }
 
+        public update(visualUpdateOptions: VisualUpdateOptions) {
+            if (!visualUpdateOptions ||
+                !visualUpdateOptions.dataViews ||
+                !visualUpdateOptions.dataViews[0] ||
+                !visualUpdateOptions.viewport) {
+                return;
+            }
+
+            this.dataView = visualUpdateOptions.dataViews[0];
+
+            this.updateInternal(false);
+        }
+
         public onResizing(finalViewport: IViewport): void {
             this.currentViewport = finalViewport;
             this.updateInternal(false /* resetScrollbarPosition */);
@@ -400,7 +316,7 @@ module powerbi.visuals.samples {
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] {
             let data = this.slicerData;
-            if (!data){
+            if (!data) {
                 return;
             }
 
@@ -484,7 +400,36 @@ module powerbi.visuals.samples {
                 }
             }];
         }
+        private mergeDatasets(first: any[], second: any[]): any[] {
+            let settings = this.settings;
+            let secondSet = d3.set();
+            second.forEach((d) => {
+                secondSet.add(d.identity ? d.identity.getKey() : d.data.identity.getKey());
+            });
 
+            let onlyFirstItems = first.filter((d) => {
+                return !secondSet.has(d.identity ? d.identity.getKey() : d.data.identity.getKey());
+            });
+
+            let onlyFirst = onlyFirstItems.map((d) => {
+                let derived = d;
+                derived.selectable = false;
+                return derived;
+            });
+            if (settings.general.showdisabled.toLocaleLowerCase().trim() === 'bottom') {
+                return d3.merge([second, onlyFirst]);
+            }
+            else {
+                let merged = d3.merge([second, []]);
+                let onlyFirstIndexes = first.map((d, index) => {
+                    return !secondSet.has(d.identity ? d.identity.getKey() : d.data.identity.getKey()) ? index : null;
+                }).filter((d) => d !== null);
+                for (let i = 0; i < onlyFirst.length; i++) {
+                    merged.splice(onlyFirstIndexes[i], 0, onlyFirst[i]);
+                }
+                return merged;
+            }
+        }
         private updateInternal(resetScrollbarPosition: boolean) {
             this.updateSlicerBodyDimensions();
 
@@ -496,7 +441,13 @@ module powerbi.visuals.samples {
             }
 
             data.slicerSettings.header.outlineWeight = data.slicerSettings.header.outlineWeight < 0 ? 0 : data.slicerSettings.header.outlineWeight;
+            // if(this.slicerData){
+            let existingPoints = this.slicerData ? this.slicerData.slicerDataPoints : [];
+            let newPoints = data.slicerDataPoints;
+            let mergedPoints = this.mergeDatasets(existingPoints, newPoints);
+            //  }
             this.slicerData = data;
+            this.slicerData.slicerDataPoints = mergedPoints;
             this.settings = this.slicerData.slicerSettings;
             this.tableView
                 .viewport(this.getSlicerBodyViewport(this.currentViewport))
@@ -505,17 +456,18 @@ module powerbi.visuals.samples {
                 .rows(this.settings.general.horizontal ? 1 : 0)
                 .columns(this.settings.general.columns)
                 .data(
-                    data.slicerDataPoints,
-                    (d: SlicerXDataPoint) => $.inArray(d, data.slicerDataPoints),
-                    resetScrollbarPosition
+                data.slicerDataPoints,
+                (d: SlicerXDataPoint) => $.inArray(d, data.slicerDataPoints),
+                resetScrollbarPosition
                 );
         }
 
         private initContainer() {
             let settings = this.settings;
             let slicerBodyViewport = this.getSlicerBodyViewport(this.currentViewport);
-            let slicerContainer: D3.Selection = d3.select(this.element.get(0)).
-                                                classed(SlicerX.Container.class, true);
+            let slicerContainer: D3.Selection = d3.select(this.element.get(0))
+                .append('div')
+                .classed(SlicerX.Container.class, true);
 
             this.slicerHeader = slicerContainer
                 .append('div')
@@ -571,42 +523,55 @@ module powerbi.visuals.samples {
                 let settings = this.settings;
                 let data = this.slicerData;
                 if (data && settings) {
-                    if (settings.header.show) {
-                        this.slicerHeader.style('display', 'block');
-                        this.slicerHeader.select(SlicerX.HeaderText.selector)
-                            .text(settings.header.title.trim() !== "" ? settings.header.title.trim() : this.slicerData.categorySourceName)
-                            .style({
-                                'border-style': this.getBorderStyle(settings.header.outline),
-                                'border-color': settings.header.outlineColor,
-                                'border-width': this.getBorderWidth(settings.header.outline, settings.header.outlineWeight),
-                                'color': settings.header.fontColor,
-                                'background-color': settings.header.background,
-                                'font-size': PixelConverter.fromPoint(settings.header.textSize),
-                            });
-                    }
-                    else {
-                        this.slicerHeader.classed('hidden', true);
-                    }
+                    //  if (settings.header.show) {
+                    this.slicerHeader.classed('hidden', !settings.header.show);
+                    // this.slicerHeader.style('display', 'block');
+                    this.slicerHeader.select(SlicerX.HeaderText.selector)
+                        .text(settings.header.title.trim() !== "" ? settings.header.title.trim() : this.slicerData.categorySourceName)
+                        .style({
+                            'border-style': this.getBorderStyle(settings.header.outline),
+                            'border-color': settings.header.outlineColor,
+                            'border-width': this.getBorderWidth(settings.header.outline, settings.header.outlineWeight),
+                            'color': settings.header.fontColor,
+                            'background-color': settings.header.background,
+                            'font-size': PixelConverter.fromPoint(settings.header.textSize),
+                        });
+                    //  }
+                    //  else {
+                    //     this.slicerHeader.classed('hidden', true);
+                    //  }
 
                     let slicerText = rowSelection.selectAll(SlicerX.LabelText.selector);
 
                     let formatString = data.formatString;
-                    slicerText.text((d: SlicerXDataPoint) => valueFormatter.format(d.value, formatString));
+                    slicerText.text((d: SlicerXDataPoint) => valueFormatter.format(d.category, formatString));
 
                     let slicerImg = rowSelection.selectAll('.slicer-img-wrapper');
                     slicerImg
-                        .style('height', `${settings.images.imageSplit}%`)
+                        .style('flex-grow', settings.images.imageSplit)
                         .style('background-image', (d: SlicerXDataPoint) => {
-                            return `url(${d.imageURL})`;
+                            return d.imageURL ? `url(${d.imageURL})` : '';
                         })
-                        .classed('hidden', (d: SlicerXDataPoint) => (d.imageURL) ? false : true)
+                        .classed('hidden', (d: SlicerXDataPoint) => {
+                            if (!(d.imageURL)) {
+                                return true;
+                            }
+                            if (settings.images.imageSplit < 10) {
+                                return true;
+                            }
+                        })
+                        .style('display', (d: SlicerXDataPoint) => (d.imageURL) ? 'flex' : 'none')
                         .classed('stretchImage', settings.images.stretchImage)
                         .classed('bottomImage', settings.images.bottomImage);
 
                     rowSelection.selectAll('.slicer-text-wrapper')
-                        .style('width', (d: SlicerXDataPoint) => {
-                            let textSplit = d.imageURL ? (100 - settings.images.imageSplit) : 100;
-                            return `${textSplit}%`;
+                        .style('flex-grow', (d: SlicerXDataPoint) => {
+                            return d.imageURL ? (100 - settings.images.imageSplit) : 100;
+                        })
+                        .classed('hidden', (d: SlicerXDataPoint) => {
+                            if (settings.images.imageSplit > 90) {
+                                return true;
+                            }
                         });
 
                     rowSelection.style({
@@ -616,6 +581,8 @@ module powerbi.visuals.samples {
                         'border-width': this.getBorderWidth(settings.slicerText.outline, settings.slicerText.outlineWeight),
                         'font-size': PixelConverter.fromPoint(settings.slicerText.textSize),
                     });
+                    rowSelection.style('display', (d: SlicerXDataPoint) => (d.selectable || settings.general.showdisabled.toLocaleLowerCase().trim() !== 'hide') ? 'inline-block' : 'none');
+                    this.slicerBody.style('background-color', settings.slicerText.background);
 
                     if (this.interactivityService && this.slicerBody) {
                         let slicerBody = this.slicerBody.attr('width', this.currentViewport.width);
@@ -634,12 +601,12 @@ module powerbi.visuals.samples {
                             slicerSettings: data.slicerSettings,
                         };
 
-                        this.interactivityService.bind(data.slicerDataPoints, this.behavior, behaviorOptions, { 
+                        this.interactivityService.bind(data.slicerDataPoints, this.behavior, behaviorOptions, {
                             overrideSelectionFromData: true,
                             hasSelectionOverride: data.hasSelectionOverride
                         });
                         this.behavior.styleSlicerInputs(rowSelection.select(SlicerX.ItemContainer.selector),
-                                                        this.interactivityService.hasSelection());
+                            this.interactivityService.hasSelection());
                     }
                     else {
                         this.behavior.styleSlicerInputs(rowSelection.select(SlicerX.ItemContainer.selector), false);

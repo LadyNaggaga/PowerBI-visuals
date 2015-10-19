@@ -56,77 +56,58 @@ module powerbi.visuals.samples {
             this.slicerSettings = options.slicerSettings;
 
             slicers.on("mouseover", (d: SlicerXDataPoint) => {
-                d.mouseOver = true;
-                d.mouseOut = false;
-                this.renderMouseover();
+                if (d.selectable) {
+                    d.mouseOver = true;
+                    d.mouseOut = false;
+                    this.renderMouseover();
+                }
             });
 
             slicers.on("mouseout", (d: SlicerXDataPoint) => {
-                d.mouseOver = false;
-                d.mouseOut = true;
-                this.renderMouseover();
+                if (d.selectable) {
+                    d.mouseOver = false;
+                    d.mouseOut = true;
+                    this.renderMouseover();
+                }
             });
-
-            //jQuery(slicers).selectable({
-            //    selected: function (event, ui) { }
-            //});
 
             slicers.on("click", (d: SlicerXDataPoint, index) => {
-                let settings = this.slicerSettings;
-                d3.event.preventDefault();
-                if (d3.event.altKey && settings.general.multiselect) {
-                    //  selectionHandler.toggleSelectionModeInversion();
-                    let selectedIndexes = jQuery.map(this.dataPoints, function (d, index) { if (d.selected) return index; });
-                    let selIndex = selectedIndexes.length > 0 ? (selectedIndexes[selectedIndexes.length - 1]) : 0;
-                    selIndex = selIndex > index ? 0 : selIndex;
-                    selectionHandler.handleClearSelection();
-                    for (let i = selIndex; i <= index; i++) {
-                        selectionHandler.handleSelection(this.dataPoints[i], true /* isMultiSelect */);
+                if (d.selectable) {
+                    let settings = this.slicerSettings;
+                    d3.event.preventDefault();
+                    if (d3.event.altKey && settings.general.multiselect) {
+                        let selectedIndexes = jQuery.map(this.dataPoints, function(d, index) { if (d.selected) return index; });
+                        let selIndex = selectedIndexes.length > 0 ? (selectedIndexes[selectedIndexes.length - 1]) : 0;
+                        selIndex = selIndex > index ? 0 : selIndex;
+                        selectionHandler.handleClearSelection();
+                        for (let i = selIndex; i <= index; i++) {
+                            selectionHandler.handleSelection(this.dataPoints[i], true /* isMultiSelect */);
+                        }
                     }
+                    else if (d3.event.ctrlKey && settings.general.multiselect) {
+                        selectionHandler.handleSelection(d, true /* isMultiSelect */);
+                    }
+                    else {
+                        selectionHandler.handleSelection(d, false /* isMultiSelect */);
+                    }
+                    selectionHandler.persistSelectionFilter(filterPropertyId);
                 }
-                else if (d3.event.ctrlKey && settings.general.multiselect) {
-                    //  selectionHandler.toggleSelectionModeInversion();
-                    selectionHandler.handleSelection(d, true /* isMultiSelect */);
-                }
-                else {
-                    selectionHandler.handleSelection(d, false /* isMultiSelect */);
-                }
-                selectionHandler.persistSelectionFilter(filterPropertyId);
             });
 
-            //slicerItemLabels.on("click", (d: SlicerXDataPoint) => {
-            //    d3.event.preventDefault();
-            //    if (d.isSelectAllDataPoint) {
-            //        selectionHandler.toggleSelectionModeInversion();
-            //    }
-            //    else {
-            //        selectionHandler.handleSelection(d, true /* isMultiSelect */);
-            //    }
-            //    selectionHandler.persistSelectionFilter(filterPropertyId);
-            //});
-
             slicerClear.on("click", (d: SelectableDataPoint) => {
+
                 selectionHandler.handleClearSelection();
                 selectionHandler.persistSelectionFilter(filterPropertyId);
+
             });
         }
 
         public renderSelection(hasSelection: boolean): void {
             if (!hasSelection && !this.interactivityService.isSelectionModeInverted()) {
-                //   this.slicerItemInputs.selectAll('.partiallySelected').classed('partiallySelected', false);
                 this.slicers.style('background', this.slicerSettings.slicerText.unselectedColor);
-                //     this.slicerItemLabels.style('color', this.slicerSettings.slicerText.color);
             }
             else {
                 this.styleSlicerInputs(this.slicers, hasSelection);
-                //this.slicerItemLabels.style({
-                //    'color': (d: SlicerXDataPoint) => {
-                //        if (d.selected)
-                //            return this.slicerSettings.slicerText.se;
-                //        else
-                //            return this.slicerSettings.slicerText.color;
-                //    }
-                //});
             }
         }
 
@@ -148,15 +129,11 @@ module powerbi.visuals.samples {
 
         public styleSlicerInputs(slicers: D3.Selection, hasSelection: boolean) {
             let settings = this.slicerSettings;
-            slicers.each(function (d: SlicerXDataPoint) {
-                d3.select(this).style({ 'background': d.selected ? settings.slicerText.selectedColor : settings.slicerText.unselectedColor });
-                //if (d.isSelectAllDataPoint) {
-                //    d3.select(this).classed('partiallySelected', hasSelection);
-                //    d3.select(this).property({ 'checked': d.selected });
-                //}
-                //else {
-                //    d3.select(this).property({ 'checked': d.selected });
-                //}
+            slicers.each(function(d: SlicerXDataPoint) {
+                d3.select(this).style({
+                    'background': d.selectable ? (d.selected ? settings.slicerText.selectedColor : settings.slicerText.unselectedColor)
+                        : settings.slicerText.disabledColor
+                });
             });
         }
     }

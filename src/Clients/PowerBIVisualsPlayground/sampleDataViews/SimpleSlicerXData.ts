@@ -37,26 +37,29 @@ module powerbi.visuals.sampleDataViews {
         public visuals: string[] = ['slicerX'];
 
         private sampleData = [
-            "http://www.carfolio.com/images/dbimages/zgas/manufacturers/id/843/bmw-logo.png",
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Mercedes_benz_logo1989.png/120px-Mercedes_benz_logo1989.png",
-            "http://www.rayten.com/wp-content/uploads/2012/02/Honda-logo-1.png",     
-            "http://auto-koller.com/images/logos/Toyota_Transparent.gif",        
-            "http://a.dlron.us/assets/logos/transparent/Ferrari.png"
+            [5, 10, 15, 20, 25],
+            [
+                "http://www.carfolio.com/images/dbimages/zgas/manufacturers/id/843/bmw-logo.png",
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Mercedes_benz_logo1989.png/120px-Mercedes_benz_logo1989.png",
+                "http://www.rayten.com/wp-content/uploads/2012/02/Honda-logo-1.png",
+                "http://auto-koller.com/images/logos/Toyota_Transparent.gif",
+                "http://a.dlron.us/assets/logos/transparent/Ferrari.png"
+            ]
         ];
 
         public getDataViews(): DataView[] {
 
-            var fieldExpr = powerbi.data.SQExprBuilder.fieldExpr({ column: { schema: 's', entity: "table1", name: "country" } });
+            let fieldExpr = powerbi.data.SQExprBuilder.fieldExpr({ column: { schema: 's', entity: "table1", name: "country" } });
 
-            var categoryValues = ["BMW", "Mercedes", "Honda", "Toyota", "Ferrari"];
-            var categoryIdentities = categoryValues.map(function (value) {
-                var expr = powerbi.data.SQExprBuilder.equal(fieldExpr, powerbi.data.SQExprBuilder.text(value));
+            let categoryValues = ["BMW", "Mercedes", "Honda", "Toyota", "Ferrari"];
+            let categoryIdentities = categoryValues.map(function (value) {
+                let expr = powerbi.data.SQExprBuilder.equal(fieldExpr, powerbi.data.SQExprBuilder.text(value));
                 return powerbi.data.createDataViewScopeIdentity(expr);
             });
         
             // Metadata, describes the data columns, and provides the visual with hints
             // so it can decide how to best represent the data
-            var dataViewMetadata: powerbi.DataViewMetadata = {
+            let dataViewMetadata: powerbi.DataViewMetadata = {
                 columns: [
                     {
                         displayName: 'Car',
@@ -64,35 +67,37 @@ module powerbi.visuals.sampleDataViews {
                         type: powerbi.ValueType.fromDescriptor({ text: true })
                     },
                     {
-                        displayName: 'Logo',
+                        displayName: 'Values',
+                        format: "g",
                         isMeasure: true,
-                        format: "$0,000.00",
-                        queryName: 'sales1',
+                        queryName: 'Image',
+                        roles: { Values : true },
                         type: powerbi.ValueType.fromDescriptor({ numeric: true }),
                         objects: { dataPoint: { fill: { solid: { color: 'purple' } } } },
                     },
                     {
-                        displayName: 'Logo2',
+                        displayName: 'Image',
+                        format: "g",
                         isMeasure: true,
-                        format: "$0,000.00",
-                        queryName: 'sales2',
-                        type: powerbi.ValueType.fromDescriptor({ numeric: true })
+                        queryName: 'Image',
+                        type: powerbi.ValueType.fromDescriptor({ text: true })
                     }
                 ],
                 objects: {
-                  //  slicerXProps: {
-                        general: {
-                            columns: 1
-                        }
-                //    }
+                    general: {
+                        columns: 1
+                    }
                 }
             };
 
             let columns = [
                 {
                     source: dataViewMetadata.columns[1],
-                    // Logos
-                    values: this.sampleData,
+                    values: this.sampleData[0]
+                },
+                {
+                    source: dataViewMetadata.columns[2],
+                    values: this.sampleData[1]
                 }
             ];
 

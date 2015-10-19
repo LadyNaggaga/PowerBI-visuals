@@ -86,7 +86,7 @@ module powerbi.visuals.samples {
         private static defaultColumns = 1;
 
         private static marginLeft = 5;
-        private static marginRight = 5;
+        private static marginRight = 15;
         private static paddingLeft = 5;
         private static paddingRight = 5;
 
@@ -218,10 +218,11 @@ module powerbi.visuals.samples {
             cellUpdateSelection.call(d => options.update(d));
 
             cellUpdateSelection.style({
+                'margin-left': TableView.marginLeft + 'px',
                 'width': (options.columnWidth > 0) ? options.columnWidth + 'px' :
                     (options.viewport.width / this._totalColumns - TableView.marginLeft - TableView.marginRight - TableView.paddingLeft - TableView.paddingRight) + 'px'
             });
-            cellUpdateSelection.style({ 'min-height': (options.rowHeight > 0) ? options.rowHeight + 'px' : 'auto' });
+            cellUpdateSelection.style({ 'height': (options.rowHeight > 0) ? options.rowHeight + 'px' : 'auto' });
             cellSelection
                 .exit()
                 .call(d => options.exit(d))

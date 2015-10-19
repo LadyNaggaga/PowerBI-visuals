@@ -28,7 +28,7 @@
 /// <reference path="../../_references.ts"/>
 
 module powerbi.visuals.samples {
-    export var slicerXCapabilities: VisualCapabilities = {
+    export let slicerXCapabilities: VisualCapabilities = {
         dataRoles: [
             {
                 name: 'Field',
@@ -198,7 +198,7 @@ module powerbi.visuals.samples {
         dataViewMappings: [{
             conditions: [
                 { 'Field': { max: 1 }, 'Image': { max: 0 } },
-                { 'Field': { max: 1 }, 'Image': { min: 1, max: 1 }, 'Values': { max: 1 } }],
+                { 'Field': { max: 1 }, 'Image': { min: 0, max: 1 }, 'Values': { min: 0, max: 1 } }],
             categorical: {
                 categories: {
                     for: { in: 'Field' },
@@ -225,7 +225,7 @@ module powerbi.visuals.samples {
     };
 
     // TODO: Generate these from above, defining twice just introduces potential for error
-    export var slicerXProps = {
+    export let slicerXProps = {
         general: {
             horizontal: <DataViewObjectPropertyIdentifier>{ objectName: 'general', propertyName: 'horizontal' },
             columns: <DataViewObjectPropertyIdentifier>{ objectName: 'general', propertyName: 'columns' },
